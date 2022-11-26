@@ -17,25 +17,58 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const mobilesCollection = client.db('ssh-mobile').collection('mobiles');
+        const bookingsCollection = client.db('ssh-mobile').collection('bookings');
+
+
         app.get('/mobiles', async (req, res) => {
             const query = {};
-            const result = await mobilesCollection.find(query,).toArray();
-            res.send(result)
+            const allPhones = await mobilesCollection.find(query).toArray();
+
+            const bookingQuery={};
+            const alreadyBook=await bookingsCollection.find(bookingQuery).toArray();
+
+            const resultAllPhone = allPhones.filter(({ model: model }) => !alreadyBook.some(({ mobileModel: mobileModel }) => model ===mobileModel ));
+            // console.log(ResultArrayObjOne);
+
+            // allPhones.forEach(phone=>{
+            //     const optionBooked=alreadyBook.filter(book=>book.mobileModel===phone.model)
+            // })
+
+            // options.forEach(option => {
+            //     const optionBooked = alreadyBooked.filter(book => book.treatment === option.name);
+
+
+
+            
+
+            res.send(resultAllPhone)
         });
         app.get('/mobiles/:brand', async (req, res) => {
-            const brand = req.params.brand;
-            if(brand==="other"){
-                const query={};
-                const otherMobiles = await mobilesCollection.find(query,).toArray();
+            const query = {};
+            const allPhones = await mobilesCollection.find(query).toArray();
 
-                const result =otherMobiles.filter(otherMobile => otherMobile.brandName !== 'samsung' && otherMobile.brandName !== 'iphone');
+            const bookingQuery={};
+            const alreadyBook=await bookingsCollection.find(bookingQuery).toArray();
+
+            const resultAllPhone = allPhones.filter(({ model: model }) => !alreadyBook.some(({ mobileModel: mobileModel }) => model ===mobileModel ));
+
+
+            const brand = req.params.brand;
+
+            if(brand==="other"){
+                
+
+                const result = resultAllPhone.filter(otherMobile => otherMobile.brandName !== 'samsung' && otherMobile.brandName !== 'iphone');
+                res.send(result)
+            }
+            else if(brand==="samsung"){
+                
+                const result = resultAllPhone.filter(otherMobile => otherMobile.brandName === 'samsung');
                 res.send(result)
             }
             else{
-                const query={
-                    brandName:brand
-                }
-                const result = await mobilesCollection.find(query,).toArray();
+                
+                const result = resultAllPhone.filter(otherMobile => otherMobile.brandName === 'iphone');
                 res.send(result)
             }
           
@@ -45,6 +78,13 @@ async function run() {
             const id=req.params.id;
             const query={_id:ObjectId(id)}
             const result = await mobilesCollection.findOne(query);
+            res.send(result)
+        });
+
+
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body;
+            const result = await bookingsCollection.insertOne(booking);
             res.send(result)
         });
 
