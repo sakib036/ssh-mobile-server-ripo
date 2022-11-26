@@ -18,6 +18,7 @@ async function run() {
     try {
         const mobilesCollection = client.db('ssh-mobile').collection('mobiles');
         const bookingsCollection = client.db('ssh-mobile').collection('bookings');
+        const usersCollection = client.db('ssh-mobile').collection('users');
 
 
         app.get('/mobiles', async (req, res) => {
@@ -28,19 +29,7 @@ async function run() {
             const alreadyBook = await bookingsCollection.find(bookingQuery).toArray();
 
             const resultAllPhone = allPhones.filter(({ model: model }) => !alreadyBook.some(({ mobileModel: mobileModel }) => model === mobileModel));
-            // console.log(ResultArrayObjOne);
-
-            // allPhones.forEach(phone=>{
-            //     const optionBooked=alreadyBook.filter(book=>book.mobileModel===phone.model)
-            // })
-
-            // options.forEach(option => {
-            //     const optionBooked = alreadyBooked.filter(book => book.treatment === option.name);
-
-
-
-
-
+    
             res.send(resultAllPhone)
         });
         app.get('/mobiles/:brand', async (req, res) => {
@@ -97,6 +86,12 @@ async function run() {
         app.post('/bookings', async (req, res) => {
             const booking = req.body;
             const result = await bookingsCollection.insertOne(booking);
+            res.send(result)
+        });
+
+         app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
             res.send(result)
         });
 
