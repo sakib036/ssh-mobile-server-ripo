@@ -24,10 +24,10 @@ async function run() {
             const query = {};
             const allPhones = await mobilesCollection.find(query).toArray();
 
-            const bookingQuery={};
-            const alreadyBook=await bookingsCollection.find(bookingQuery).toArray();
+            const bookingQuery = {};
+            const alreadyBook = await bookingsCollection.find(bookingQuery).toArray();
 
-            const resultAllPhone = allPhones.filter(({ model: model }) => !alreadyBook.some(({ mobileModel: mobileModel }) => model ===mobileModel ));
+            const resultAllPhone = allPhones.filter(({ model: model }) => !alreadyBook.some(({ mobileModel: mobileModel }) => model === mobileModel));
             // console.log(ResultArrayObjOne);
 
             // allPhones.forEach(phone=>{
@@ -39,7 +39,7 @@ async function run() {
 
 
 
-            
+
 
             res.send(resultAllPhone)
         });
@@ -47,39 +47,51 @@ async function run() {
             const query = {};
             const allPhones = await mobilesCollection.find(query).toArray();
 
-            const bookingQuery={};
-            const alreadyBook=await bookingsCollection.find(bookingQuery).toArray();
+            const bookingQuery = {};
+            const alreadyBook = await bookingsCollection.find(bookingQuery).toArray();
 
-            const resultAllPhone = allPhones.filter(({ model: model }) => !alreadyBook.some(({ mobileModel: mobileModel }) => model ===mobileModel ));
+            const resultAllPhone = allPhones.filter(({ model: model }) => !alreadyBook.some(({ mobileModel: mobileModel }) => model === mobileModel));
 
 
             const brand = req.params.brand;
 
-            if(brand==="other"){
-                
+            if (brand === "other") {
+
 
                 const result = resultAllPhone.filter(otherMobile => otherMobile.brandName !== 'samsung' && otherMobile.brandName !== 'iphone');
                 res.send(result)
             }
-            else if(brand==="samsung"){
-                
+            else if (brand === "samsung") {
+
                 const result = resultAllPhone.filter(otherMobile => otherMobile.brandName === 'samsung');
                 res.send(result)
             }
-            else{
-                
+            else {
+
                 const result = resultAllPhone.filter(otherMobile => otherMobile.brandName === 'iphone');
                 res.send(result)
             }
-          
+
         });
 
         app.get('/mobiles/:brand/:id', async (req, res) => {
-            const id=req.params.id;
-            const query={_id:ObjectId(id)}
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
             const result = await mobilesCollection.findOne(query);
             res.send(result)
         });
+
+
+        app.get('/bookings', async (req, res) => {
+            const email = req.query.email;
+
+            const query = {
+
+                buyersEmail: email
+            }
+            const bookings = await bookingsCollection.find(query).toArray();
+            res.send(bookings)
+        })
 
 
         app.post('/bookings', async (req, res) => {
