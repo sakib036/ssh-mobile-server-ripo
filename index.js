@@ -24,11 +24,13 @@ async function run() {
         app.get('/mobiles', async (req, res) => {
             const query = {};
             const allPhones = await mobilesCollection.find(query).toArray();
+           
 
             const bookingQuery = {};
             const alreadyBook = await bookingsCollection.find(bookingQuery).toArray();
 
             const resultAllPhone = allPhones.filter(({ model: model }) => !alreadyBook.some(({ mobileModel: mobileModel }) => model === mobileModel));
+           
     
             res.send(resultAllPhone)
         });
@@ -70,6 +72,8 @@ async function run() {
             res.send(result)
         });
 
+       
+
 
         app.get('/bookings', async (req, res) => {
             const email = req.query.email;
@@ -80,14 +84,43 @@ async function run() {
             }
             const bookings = await bookingsCollection.find(query).toArray();
             res.send(bookings)
+        });
+
+        app.get('/mobiles/dashboard/myProduct/:email', async(req,res)=>{
+            const email=req.params.email;
+        
+            const query = {
+
+                sellerEmail: email
+            }
+            const result = await mobilesCollection.find(query).toArray();
+            res.send(result)
+
         })
 
 
         app.get('/users', async (req, res) => {
             const query = {};
+            console.log('hi')
             const result = await usersCollection.find(query).toArray();
             res.send(result);
-        })
+        });
+
+    app.get('/users/dashboard/:email', async(req,res)=>{
+        const email=req.params.email;
+       
+        const query={
+            userEmail:email
+        }
+        const result=await usersCollection.findOne(query);
+        res.send(result)
+    })
+
+        app.post('/mobiles', async (req, res) => {
+            const mobile = req.body;
+            const result = await mobilesCollection.insertOne(mobile);
+            res.send(result)
+        });
 
 
         app.post('/bookings', async (req, res) => {
