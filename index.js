@@ -81,6 +81,14 @@ async function run() {
             res.send(result)
         });
 
+        app.get('/reported', async(req, res) => {
+            
+            const query = {};
+            const advertises = await mobilesCollection.find(query).toArray();
+            const result=advertises.filter(advertise=>advertise.isReported==='report');
+            res.send(result)
+        });
+
        
 
 
@@ -111,9 +119,28 @@ async function run() {
         app.get('/users', async (req, res) => {
             const query = {};
             
-            const result = await usersCollection.find(query).toArray();
+            const allUsers = await usersCollection.find(query).toArray();
+            const result=allUsers.filter(oneUser=>oneUser.userType==='User');
             res.send(result);
         });
+        app.get('/seller', async (req, res) => {
+            const query = {};
+            
+            const allUsers = await usersCollection.find(query).toArray();
+            const result=allUsers.filter(oneUser=>oneUser.userType==='Seller');
+            res.send(result);
+        });
+
+    app.get('/user/:email', async(req,res)=>{
+        const email=req.params.email;
+       
+        const query={
+            userEmail:email
+        }
+        const result=await usersCollection.findOne(query);
+        res.send(result)
+    });
+
 
     app.get('/users/dashboard/:email', async(req,res)=>{
         const email=req.params.email;
@@ -144,6 +171,22 @@ async function run() {
             res.send(result)
         });
 
+        app.put('/mobile/:id',  async (req, res) => {
+
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    isReported: 'report'
+                }
+            }
+            const result = await mobilesCollection.updateOne(filter, updateDoc, options)
+
+            res.send(result)
+        });
+
+
         app.put('/mobiles/:id',  async (req, res) => {
 
             const id = req.params.id;
@@ -159,10 +202,32 @@ async function run() {
             res.send(result)
         });
 
+
+        app.put('/user/:id',  async (req, res) => {
+
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    isVerify: 'verify'
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updateDoc, options)
+
+            res.send(result)
+        });
+
         app.delete('/mobiles/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await mobilesCollection.deleteOne(query)
+            res.send(result)
+        })
+        app.delete('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await usersCollection.deleteOne(query)
             res.send(result)
         })
 
