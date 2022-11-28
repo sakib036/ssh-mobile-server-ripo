@@ -72,6 +72,15 @@ async function run() {
             res.send(result)
         });
 
+
+        app.get('/advertise', async(req, res) => {
+            
+            const query = {};
+            const advertises = await mobilesCollection.find(query).toArray();
+            const result=advertises.filter(advertise=>advertise.isAdvertise==='advertise');
+            res.send(result)
+        });
+
        
 
 
@@ -101,7 +110,7 @@ async function run() {
 
         app.get('/users', async (req, res) => {
             const query = {};
-            console.log('hi')
+            
             const result = await usersCollection.find(query).toArray();
             res.send(result);
         });
@@ -134,6 +143,28 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result)
         });
+
+        app.put('/mobiles/:id',  async (req, res) => {
+
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    isAdvertise: 'advertise'
+                }
+            }
+            const result = await mobilesCollection.updateOne(filter, updateDoc, options)
+
+            res.send(result)
+        });
+
+        app.delete('/mobiles/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await mobilesCollection.deleteOne(query)
+            res.send(result)
+        })
 
     }
     finally {
